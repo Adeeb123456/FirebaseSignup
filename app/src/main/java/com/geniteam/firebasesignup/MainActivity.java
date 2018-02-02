@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -336,12 +337,35 @@ User userWithProfilePic=user;
                  //   bitmap.compress(Bitmap.CompressFormat.JPEG,20,);
 
                     selectedImageUri= savePicture(this,bitmap);
+                    Picasso.with(this).load(selectedImageUri).into(mainBinding.imageViewProfile);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }else {
             Toast.makeText(getApplicationContext(),"error ",Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public class ImageResizeAsyn extends AsyncTask<Bitmap,Void,Uri>{
+
+        @Override
+        protected Uri doInBackground(Bitmap... bitmaps) {
+            Uri uri = null;
+            try {
+            uri=    savePicture(getApplicationContext(),bitmaps[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return uri;
+        }
+
+        @Override
+        protected void onPostExecute(Uri uri) {
+            super.onPostExecute(uri);
+            
+            
         }
     }
     public  Uri savePicture(Context context, Bitmap bitmap) throws IOException {
@@ -352,7 +376,7 @@ User userWithProfilePic=user;
         File tempFile = File.createTempFile("profile", ".jpg", tempDir);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 20, bytes);
-        mainBinding.imageViewProfile.setImageBitmap(bitmap);
+      //  mainBinding.imageViewProfile.setImageBitmap(bitmap);
         byte[] bitmapData = bytes.toByteArray();
 
         //write the bytes in file
